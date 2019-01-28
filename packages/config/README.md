@@ -613,7 +613,7 @@ Example of the configuration file:
 module.exports = {
     // Root directory.
     'root': true,
-    // Project levels.
+    // Project levels. Override common options.
     'levels': [
         {
             'path': 'path/to/level',
@@ -667,8 +667,6 @@ module.exports = {
     }
 }
 ```
-
-`levels` override common options.
 
 ## License
 
