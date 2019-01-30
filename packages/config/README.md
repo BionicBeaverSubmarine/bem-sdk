@@ -99,7 +99,7 @@ Call an asynchronous method `get()` to get the project's settings.
 const config = require('@bem/sdk.config')();
 /**
  * Config is a merge of:
- * - CLI arguments;
+ * - the CLI arguments;
  * - an optional configuration object (see `options.defaults`);
  * - all configs found by `rc` configuration files.
  **/
