@@ -230,8 +230,14 @@ Sets the custom root directory. The path to the desired resource is relative to 
 **Example:**
 
 ```js
-
+const config = require('@bem/sdk.config');
+const bemConfig = config({fsRoot: '/app', cwd: 'src/configs'});
+bemConfig.get().then(conf => {
+    console.log(conf);
+});
 ```
+
+[RunKit live editor](https://runkit.com/godfreyd/5c516f8444f90b00137fefd1).
 
 ### options.fsHome
 
