@@ -205,13 +205,27 @@ projectConfig.get().then(conf => {
 
 Sets the custom path to config on file system via command line argument `--config`.
 
+**Example:**
+
+```js
+const config = require('@bem/sdk.config');
+const bemConfig = config({pathToConfig: 'src/configs/.app-rc.json'});
+bemConfig.get().then(conf => {
+    console.log(conf);
+});
+```
+
+[RunKit live editor](https://runkit.com/godfreyd/5c51614099b140001260bd0e).
+
 ### options.fsRoot
 
 Sets the custom root directory. The path to the desired resource is relative to your app root directory.
 
 **Example:**
 
-???
+```js
+
+```
 
 ### options.fsHome
 
@@ -252,7 +266,23 @@ Sets extensions.
 
 **Example:**
 
-???
+```js
+const config = require('@bem/sdk.config');
+const bemConfig = config({
+    extendBy: {
+        levels: [
+            { path: 'path/to/level', test: 1 }
+        ],
+        common: 'overriden',
+        extended: 'yo'
+    }
+});
+bemConfig.get().then(conf => {
+    console.log(conf);
+});
+```
+
+[RunKit live editor](https://runkit.com/godfreyd/5c516adb99b140001260c7be).
 
 ## Async API reference
 
