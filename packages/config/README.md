@@ -340,7 +340,7 @@ config.module('bem-tools').then(bemToolsConf => {
 
 ### configs()
 
-Returns  all found configs from all dirs.
+Returns all found configs from all dirs.
 
 > **Note.** It is a low-level method that is required for working with each config separately.
 
@@ -435,7 +435,7 @@ console.log(bemToolsConf);
 
 ### configs()
 
-Returns  all found configs from all dirs.
+Returns all found configs from all dirs.
 
 > **Note.** It is a low-level method that is required for working with each config separately.
 
