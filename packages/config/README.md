@@ -23,15 +23,15 @@ Config allows you to get a [BEM](https://en.bem.info) project's settings from a 
 The configuration file can contain:
 
 * Redefinition levels of BEM project.
-* An array of paths to the libraries used.
-* An array of paths to the plugins to require.
+* An array of options to the libraries used.
+* An array of options to the modules used.
 * The level's sets.
 
 ## Installation
 
 To install the `@bem/sdk.config` package, run the following command:
 
-```
+```bash
 $ npm install --save @bem/sdk.config
 ```
 
@@ -69,32 +69,19 @@ Specify the project's settings in the project's configuration file. Put it in th
 
 ```js
 module.exports = {
-    // Root directory is `/`.
+    // Root directory for traversing `rc` files and collecting configs.
     root: true,
     // Project levels.
     levels: {
         'common.blocks': {},
-        'desktop.bundles': {}
+        'desktop.blocks': {}
     },
-    // Modules and plugins.
+    // Modules.
     modules: {
         'bem-tools': {
             plugins: {
                 create: {
-                    templates: {
-                        'bemdecl.js': '.bem/templates/bemdecl.js',
-                    },
-                    techs: ['css', 'js'],
-                    levels: {
-                        'desktop.bundles': {
-                            techs: [
-                                'bemdecl.js',
-                            ],
-                        },
-                        'common.blocks': {
-                            default: true
-                        }
-                    }
+                    techs: ['css', 'js']
                 }
             }
         }
@@ -111,17 +98,18 @@ Call an asynchronous method `get()` to get the project's settings.
 ```js
 const config = require('@bem/sdk.config')();
 config.get().then((conf) => {
-    console.log(conf);
+    console.log(conf); // Config is a merge of CLI arguments + an optional configuration object (see `options.defaults`) + all configs found by `rc` configuration files.
 });
 /**
  *
  * {
  *   root: true,
  *   levels: [
- *     { path: '/app/common.blocks' },
- *     { path: '/app/desktop.bundles' } ],
- *   modules: { 'bem-tools': { plugins: {} } },
- *   __source: '/app/.bemrc'
+ *     {path: 'common.blocks'},
+ *     {path: 'desktop.bundles'}],
+ *   modules: {
+ *      'bem-tools': {plugins: {create: {techs: ['css', 'js']}}}},
+ *   __source: '.bemrc'
  * }
  *
  **/
@@ -136,10 +124,14 @@ const config = require('@bem/sdk.config');
 /**
  * Constructor.
  * @param {Object} [options] — object.
- * @param {String} [options.name='bem'] - config filename.
+ * @param {String} [options.name='bem'] — config filename. This option is converted to `rc` file and config traverse different variations of file formats (for example `.bemrc`, `.bemrc.js`, `.bemrc.json`).
  * @param {String} [options.cwd=process.cwd()] — project's root directory.
  * @param {Object} [options.defaults={}] — use this object as fallback for found configs.
  * @param {String} [options.pathToConfig] — custom path to config on FS via command line argument `--config`.
+ * @param {String} [options.fsRoot] — custom root directory.
+ * @param {String} [options.fsHome] — custom `$HOME` directory.
+ * @param {Object} [options.plugins] — an array of paths to plugins to require.
+ * @param {Object} [options.extendBy] — extensions.
  * @constructor
  */
 const bemConfig = config([options]);
@@ -162,90 +154,26 @@ Sets the configuration filename. The default value is `bem`.
 
 ```js
 const config = require('@bem/sdk.config');
-const mockfs = require('mock-fs');
-const { stripIndent } = require('common-tags');
 const bemConfig = config({name: 'app'});
-
-mockfs({
-'.apprc': stripIndent`
-    module.exports = {
-        root: true,
-        levels: {
-            'common.blocks': {},
-            'desktop.bundles': {}
-        },
-        modules: {
-            'bem-tools': {
-                plugins: {}
-            }
-        }
-    }`
-});
-
-bemConfig.get().then((conf) => {
+bemConfig.get().then(conf => {
     console.log(conf);
 });
-/**
- *
- * {
- *   root: true,
- *   levels: [
- *     { path: 'common.blocks' },
- *     { path: 'desktop.bundles' } ],
- *   modules: { 'bem-tools': { plugins: {} } },
- *   __source: '.apprc'
- * }
- *
- **/
 ```
 
 [RunKit live editor](https://runkit.com/godfreyd/5c4b1a6688fe04001b861555).
 
 ### options.cwd
 
-Sets the project's root directory. The default value is `/`.
+Sets the project's root directory. The name of the desired resource relative to your app root directory.
 
 **Example:**
 
 ```js
 const config = require('@bem/sdk.config');
-const mockfs = require('mock-fs');
-const { stripIndent } = require('common-tags');
-const bemConfig = config({cwd: 'src'});
-
-mockfs({
-     'src': {
-        '.bemrc': stripIndent`
-        module.exports = {
-            root: true,
-            levels: {
-                'common.blocks': {},
-                'desktop.bundles': {}
-            },
-            modules: {
-                'bem-tools': {
-                    plugins: {}
-                }
-            }
-        }`
-    }
-});
-
-bemConfig.get().then((conf) => {
+const bemConfig = config({cwd: 'src'}); // You should put `rc` file to `src` folder.
+bemConfig.get().then(conf => {
     console.log(conf);
 });
-/**
- *
- * {
- *   root: true,
- *   levels: [
- *     { path: 'src/common.blocks' },
- *     { path: 'src/desktop.bundles' } ],
- *   modules: { 'bem-tools': { plugins: {} } },
- *   __source: 'src/.bemrc'
- * }
- *
- **/
 ```
 
 [RunKit live editor](https://runkit.com/godfreyd/5c4c7248cef4710014fe8d8a).
@@ -258,45 +186,17 @@ Sets the additional project configuration.
 
 ```js
 const config = require('@bem/sdk.config');
-const mockfs = require('mock-fs');
-const { stripIndent } = require('common-tags');
 const optionalConfig = { defaults: [{
-    'levels': {
+    levels: {
             'common.blocks': {},
             'desktop.blocks': {}
         }
     }
 ]};
-
 const projectConfig = config(optionalConfig);
-
-mockfs({
-'.bemrc': stripIndent`
-    module.exports = [{
-        'levels': {
-            'common.blocks': {},
-            'touch.blocks': {}
-        }
-    }
-]`
-});
-
-projectConfig.get().then((conf) => {
+projectConfig.get().then(conf => {
     console.log(conf);
 });
-/**
- *
- * {
- *   {
- *      levels: {
- *          common.blocks: {},
- *          desktop.blocks: {},
- *          touch.blocks: {}
- *      }
- *    }
- * }
- *
- **/
 ```
 
 [RunKit live editor](https://runkit.com/godfreyd/5c4c77855a0ab10012cc46d5).
@@ -307,7 +207,7 @@ Sets the custom path to config on file system via command line argument `--confi
 
 ### options.fsRoot
 
-Sets the custom root directory.
+Sets the custom root directory. The path to the desired resource is relative to your app root directory.
 
 **Example:**
 
@@ -321,43 +221,10 @@ Sets the custom `$HOME` directory.
 
 ```js
 const config = require('@bem/sdk.config');
-const mockfs = require('mock-fs');
-const { stripIndent } = require('common-tags');
-const bemConfig = config({'fsHome': 'src'});
-
-mockfs({
-     'src': {
-        '.bemrc': stripIndent`
-        module.exports = {
-            'root': true,
-            'levels': {
-                'common.blocks': {},
-                'desktop.bundles': {}
-            },
-            'modules': {
-                'bem-tools': {
-                    'plugins': {}
-                }
-            }
-        }`
-    }
-});
-
-bemConfig.get().then((conf) => {
+const bemConfig = config({fsHome: 'src'});
+bemConfig.get().then(conf => {
     console.log(conf);
 });
-/**
- *
- * {
- *   root: true,
- *   levels: [
- *     { path: 'src/common.blocks' },
- *     { path: 'src/desktop.bundles' } ],
- *   modules: { 'bem-tools': { plugins: {} } },
- *   __source: 'src/.bemrc'
- * }
- *
- **/
 ```
 
 [RunKit live editor](https://runkit.com/godfreyd/5c4ede68cf562000133b547f).
@@ -370,36 +237,11 @@ Sets the array of paths to plugins to require.
 
 ```js
 const config = require("@bem/sdk.config");
-const mockfs = require('mock-fs');
-const { stripIndent } = require('common-tags');
 const optionalConfig = { defaults: [{ plugins: { create: { techs: ['styl', 'browser.js']}}}]};
 const bemConfig = config(optionalConfig);
-
-mockfs({
-     'src': {
-        '.bemrc': stripIndent`
-        module.exports = {
-            root: true,
-            levels: {
-                'common.blocks': {},
-                'desktop.bundles': {}
-            }
-        }`
-    }
-});
-
-bemConfig.get().then((conf) => {
+bemConfig.get().then(conf => {
     console.log(conf);
 });
-/**
- *
- * {
- *   root: true,
- *   levels: {common.blocks: {}, desktop.blocks: {}}
- *   plugins: {create: {techs: ['styl', 'browser.js']}}
- * }
- *
- **/
 ```
 
 [RunKit live editor](https://runkit.com/godfreyd/5c4f0d74699268001519acc8).
@@ -636,7 +478,7 @@ module.exports = {
         // Will use mix of levels from `desktop` and `touch-pad` level sets from `core`, `bem-components` and locals.
         'deskpad': 'desktop@core touch-pad@core desktop@bem-components touch-pad@bem-components desktop@ touch-pad@'
     },
-    // Modules and plugins.
+    // Modules.
     'modules': {
         'bem-tools': {
             'plugins': {
