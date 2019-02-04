@@ -129,15 +129,15 @@ Config options. The config options can be used to make settings for the config i
 const config = require('@bem/sdk.config');
 /**
  * Constructor.
- * @param {Object} [options] — object.
- * @param {String} [options.name='bem'] — config filename. This option is converted to `rc` file and config traverse different variations of file formats (for example `.bemrc`, `.bemrc.js`, `.bemrc.json`).
- * @param {String} [options.cwd=process.cwd()] — project's root directory.
- * @param {Object} [options.defaults={}] — use this object as fallback for found configs.
- * @param {String} [options.pathToConfig] — custom path to config on FS via command line argument `--config`.
- * @param {String} [options.fsRoot] — custom root directory.
- * @param {String} [options.fsHome] — custom `$HOME` directory.
- * @param {Object} [options.plugins] — an array of paths to plugins to require.
- * @param {Object} [options.extendBy] — extensions.
+ * @param {Object} [options] — Object.
+ * @param {String} [options.name='bem'] — Config filename. This option is converted to `rc` file and config traverse different variations of file formats (for example `.bemrc`, `.bemrc.js`, `.bemrc.json`).
+ * @param {String} [options.cwd=process.cwd()] — Project's root directory.
+ * @param {Object} [options.defaults={}] — Use this object as fallback for found configs.
+ * @param {String} [options.pathToConfig] — Custom path to config on FS via command line argument `--config`.
+ * @param {String} [options.fsRoot] — Custom root directory.
+ * @param {String} [options.fsHome] — Custom `$HOME` directory.
+ * @param {Object} [options.plugins] — An array of paths to plugins to require.
+ * @param {Object} [options.extendBy] — Extensions.
  * @constructor
  */
 const bemConfig = config([options]);
